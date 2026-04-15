@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevAide — Ticket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --accent: #5b6cff;
+    --accent2: #00e5a0;
+    --text: #f0f0f5;
+    --muted: #7a7a90;
+    --danger: #ff5e6c;
+    --expert-bg: #5b6cff18;
+    --user-bg: #1e1e2e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+  a { color: inherit; text-decoration: none; }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(14,14,16,0.95);
+    flex-shrink: 0;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.82rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .back-btn:hover { color: var(--text); border-color: #3a3a50; }
+  .nav-title { font-size: 0.95rem; font-weight: 700; }
+  .nav-num { font-size: 0.78rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .nav-status { margin-left: auto; }
+  .status-pill {
+    font-size: 0.7rem; font-family: 'DM Mono', monospace;
+    padding: 0.25rem 0.7rem; border-radius: 100px;
+  }
+  .pill-open { background: #00e5a015; color: var(--accent2); border: 1px solid #00e5a030; }
+  .pill-answered { background: #5b6cff15; color: var(--accent); border: 1px solid #5b6cff30; }
+  .pill-closed { background: #ffffff10; color: var(--muted); border: 1px solid var(--border); }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  /* LEFT — ticket info */
+  .ticket-info {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem;
+  }
+  .info-label {
+    font-size: 0.7rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+  }
+  .info-value { font-size: 0.88rem; line-height: 1.5; word-break: break-all; }
+  .info-value a { color: var(--accent); }
+  .info-value a:hover { text-decoration: underline; }
+  .divider { height: 1px; background: var(--border); margin: 0.8rem 0; }
+  .tech-tag {
+    display: inline-block;
+    font-size: 0.72rem; font-family: 'DM Mono', monospace;
+    padding: 0.25rem 0.7rem; border-radius: 6px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+  }
+  .fifo-position {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .position-num { font-size: 2.5rem; font-weight: 800; color: var(--accent2); line-height: 1; }
+  .position-label { font-size: 0.72rem; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 0.3rem; }
+  .github-link {
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    font-size: 0.78rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    padding: 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    transition: all 0.15s;
+  }
+  .github-link:hover { color: var(--text); border-color: #3a3a50; }
+
+  /* RIGHT — chat */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .chat-header {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .chat-header-left { font-size: 0.88rem; font-weight: 600; }
+  .refresh-info {
+    font-size: 0.7rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* MESSAGES */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .message { display: flex; flex-direction: column; gap: 0.3rem; max-width: 78%; }
+  .message.expert { align-self: flex-start; }
+  .message.user { align-self: flex-end; }
+  .message.system { align-self: center; max-width: 90%; }
+
+  .msg-meta {
+    font-size: 0.7rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .message.user .msg-meta { justify-content: flex-end; }
+  .msg-author { font-weight: 500; }
+  .expert-badge {
+    font-size: 0.6rem; padding: 0.1rem 0.4rem; border-radius: 4px;
+    background: var(--accent); color: #fff;
+  }
+
+  .msg-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  .message.expert .msg-bubble {
+    background: var(--expert-bg);
+    border: 1px solid #5b6cff30;
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+  .message.user .msg-bubble {
+    background: var(--user-bg);
+    border: 1px solid var(--border);
+    border-top-right-radius: 4px;
+  }
+  .message.system .msg-bubble {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  /* Original post */
+  .original-post {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.5rem;
+    align-self: stretch;
+    max-width: 100%;
+  }
+  .original-post .op-label {
+    font-size: 0.68rem; color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .original-post .op-text {
+    font-size: 0.85rem; color: var(--text); line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  /* Markdown-ish rendering */
+  .msg-bubble code {
+    background: rgba(255,255,255,0.06);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82em;
+  }
+  .msg-bubble pre {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.8rem;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  /* INPUT */
+  .chat-input {
+    border-top: 1px solid var(--border);
+    padding: 1rem;
+    flex-shrink: 0;
+  }
+  .input-row {
+    display: flex; gap: 0.6rem; align-items: flex-end;
+  }
+  .input-name {
+    width: 140px; flex-shrink: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    padding: 0.6rem 0.8rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input-name:focus { border-color: var(--accent); }
+  .input-wrap {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    transition: border-color 0.15s;
+  }
+  .input-wrap:focus-within { border-color: var(--accent); }
+  textarea.msg-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.9rem;
+    resize: none;
+    max-height: 120px;
+    line-height: 1.5;
+    min-height: 40px;
+  }
+  .send-btn {
+    margin: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 7px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { background: #4a5ce8; }
+  .send-btn:disabled { background: var(--border); cursor: not-allowed; }
+  .input-hint {
+    font-size: 0.7rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 0.5rem;
+  }
+
+  /* LOADING / EMPTY */
+  .chat-loading {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0.8rem;
+    color: var(--muted); font-size: 0.85rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 700px) {
+    .layout { flex-direction: column; padding: 1rem; gap: 1rem; }
+    .ticket-info { width: 100%; flex-direction: row; flex-wrap: wrap; overflow: visible; }
+    .info-card, .fifo-position { flex: 1; min-width: 140px; }
+    body { height: auto; min-height: 100vh; }
+    .chat-area { min-height: 60vh; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="back-btn">← Retour</a>
+  <div>
+    <div class="nav-title" id="navTitle">Chargement…</div>
+    <div class="nav-num" id="navNum"></div>
+  </div>
+  <div class="nav-status">
+    <span class="status-pill pill-open" id="navStatus">ouvert</span>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- INFOS TICKET -->
+  <div class="ticket-info">
+    <div class="info-card">
+      <div class="info-label">AUTEUR</div>
+      <div class="info-value" id="infoAuthor">—</div>
+      <div class="divider"></div>
+      <div class="info-label">TECHNOLOGIE</div>
+      <div class="info-value"><span class="tech-tag" id="infoTech">—</span></div>
+      <div class="divider"></div>
+      <div class="info-label">SITE</div>
+      <div class="info-value" id="infoUrl">—</div>
+      <div class="divider"></div>
+      <div class="info-label">CRÉÉ</div>
+      <div class="info-value" id="infoDate">—</div>
+    </div>
+
+    <div class="fifo-position">
+      <div class="position-num" id="positionNum">—</div>
+      <div class="position-label">position dans la file</div>
+    </div>
+
+    <a href="#" class="github-link" id="githubLink" target="_blank">
+      ↗ voir sur GitHub
+    </a>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="chat-header-left">Conversation</div>
+      <div class="refresh-info"><div class="live-dot"></div> actualisation auto</div>
+    </div>
+    <div class="messages" id="messages">
+      <div class="chat-loading"><div class="spinner"></div>Chargement…</div>
+    </div>
+    <div class="chat-input">
+      <div class="input-row">
+        <input type="text" class="input-name" id="senderName" placeholder="Ton pseudo">
+        <div class="input-wrap">
+          <textarea class="msg-input" id="msgInput" placeholder="Écris ton message… (Shift+Entrée pour saut de ligne)" rows="1"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">Envoyer</button>
+        </div>
+      </div>
+      <div class="input-hint">Les experts reçoivent une notification GitHub à chaque message.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONFIG_KEY = 'devaide_config';
+function getConfig() {
+  try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'); } catch { return {}; }
+}
+
+const params = new URLSearchParams(location.search);
+const issueNum = parseInt(params.get('issue'));
+if (!issueNum) { location.href = 'index.html'; }
+
+let issueData = null;
+let knownCommentIds = new Set();
+let allIssues = [];
+
+async function api(path, method = 'GET', body = null) {
+  const { owner, repo, token } = getConfig();
+  const opts = {
+    method,
+    headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json' }
+  };
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, opts);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderMarkdown(text) {
+  return escHtml(text)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+function timeAgo(d) {
+  const diff = (Date.now() - new Date(d)) / 1000;
+  if (diff < 60) return 'à l\'instant';
+  if (diff < 3600) return `il y a ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `il y a ${Math.floor(diff/3600)} h`;
+  return new Date(d).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+function parseBody(body) {
+  if (!body) return { author:'', url:'', tech:'', desc:'' };
+  const author = (body.match(/\*\*Auteur :\*\* (.+)/) || [])[1] || '';
+  const url    = (body.match(/\*\*Site :\*\* (.+)/) || [])[1] || '';
+  const tech   = (body.match(/\*\*Tech :\*\* (.+)/) || [])[1] || '';
+  const desc   = (body.match(/\*\*Problème :\*\*\s*([\s\S]+?)(?=\n---|\n\*\*|$)/) || [])[1]?.trim() || body;
+  return { author, url, tech, desc };
+}
+
+function isExpert(login) {
+  const { owner } = getConfig();
+  return login === owner;
+}
+
+function renderMessage(comment, type = 'comment') {
+  const expert = isExpert(comment.user.login);
+  const role = expert ? 'expert' : 'user';
+  return `
+    <div class="message ${role}">
+      <div class="msg-meta">
+        <span class="msg-author">${escHtml(comment.user.login)}</span>
+        ${expert ? '<span class="expert-badge">expert</span>' : ''}
+        <span>${timeAgo(comment.created_at)}</span>
+      </div>
+      <div class="msg-bubble">${renderMarkdown(comment.body)}</div>
+    </div>`;
+}
+
+async function loadIssue() {
+  const { owner, repo } = getConfig();
+  if (!owner || !repo) { location.href = 'index.html'; return; }
+
+  try {
+    [issueData, allIssues] = await Promise.all([
+      api(`/issues/${issueNum}`),
+      api('/issues?state=open&per_page=100&sort=created&direction=asc')
+    ]);
+
+    const { author, url, tech, desc } = parseBody(issueData.body);
+
+    document.title = `#${issueNum} — ${issueData.title}`;
+    document.getElementById('navTitle').textContent = issueData.title;
+    document.getElementById('navNum').textContent = `#${issueNum}`;
+    document.getElementById('infoAuthor').textContent = author || issueData.user.login;
+    document.getElementById('infoTech').textContent = tech || '—';
+    document.getElementById('infoDate').textContent = new Date(issueData.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('githubLink').href = issueData.html_url;
+
+    if (url && url !== 'non renseigné') {
+      document.getElementById('infoUrl').innerHTML = `<a href="${escHtml(url)}" target="_blank">${escHtml(url)}</a>`;
+    } else {
+      document.getElementById('infoUrl').textContent = 'non renseigné';
+    }
+
+    const pos = allIssues.findIndex(i => i.number === issueNum) + 1;
+    document.getElementById('positionNum').textContent = pos > 0 ? `#${pos}` : '✓';
+    document.getElementById('positionNum').style.color = pos === 1 ? 'var(--accent2)' : 'var(--text)';
+
+    const pill = document.getElementById('navStatus');
+    if (issueData.state === 'closed') {
+      pill.textContent = 'résolu'; pill.className = 'status-pill pill-closed';
+    } else if (issueData.comments > 0) {
+      pill.textContent = 'en cours'; pill.className = 'status-pill pill-answered';
+    }
+
+    await loadComments(desc);
+
+  } catch(e) {
+    document.getElementById('messages').innerHTML = `<div class="chat-loading">Erreur : ${e.message}</div>`;
+  }
+}
+
+async function loadComments(initialDesc) {
+  const comments = await api(`/issues/${issueNum}/comments`);
+  const container = document.getElementById('messages');
+  const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 60;
+
+  const { desc } = parseBody(issueData?.body || '');
+  const descText = initialDesc ?? desc;
+
+  let html = `
+    <div class="original-post">
+      <div class="op-label">✦ message initial · ${timeAgo(issueData.created_at)}</div>
+      <div class="op-text">${escHtml(descText)}</div>
+    </div>`;
+
+  if (comments.length === 0) {
+    html += `<div class="message system"><div class="msg-bubble">En attente d'un expert… Tu recevras une réponse ici.</div></div>`;
+  } else {
+    html += comments.map(c => renderMessage(c)).join('');
+    comments.forEach(c => knownCommentIds.add(c.id));
+  }
+
+  container.innerHTML = html;
+  if (wasAtBottom || knownCommentIds.size === 0) {
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+async function sendMessage() {
+  const name = document.getElementById('senderName').value.trim();
+  const text = document.getElementById('msgInput').value.trim();
+  if (!name || !text) return;
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = '…';
+
+  const body = `**${name}** :\n\n${text}`;
+
+  try {
+    await api(`/issues/${issueNum}/comments`, 'POST', { body });
+    document.getElementById('msgInput').value = '';
+    await loadComments();
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+  } catch(e) {
+    alert('Erreur : ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Envoyer';
+  }
+}
+
+// Auto-resize textarea
+document.getElementById('msgInput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// Shift+Enter = newline, Enter = send
+document.getElementById('msgInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// Init + auto-refresh
+loadIssue();
+setInterval(async () => {
+  if (issueData) await loadComments();
+}, 15000);
+</script>
+</body>
+</html>
