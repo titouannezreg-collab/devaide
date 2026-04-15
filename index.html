@@ -188,20 +188,14 @@ function getToken() {
 
 async function apiGet(path) {
   const h = { Accept: 'application/vnd.github+json' };
-  const t = getToken(); if (t) h.Authorization = `token ${t}`;
-  const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}${path}`, { headers: h });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
-
-async function apiPost(path, body) {
   const t = getToken();
-  if (!t) throw new Error('Aucun token configuré. Contacte l\'administrateur du site.');
+
+  if (t) h.Authorization = `Bearer ${t}`;
+
   const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}${path}`, {
-    method: 'POST',
-    headers: { Authorization: `token ${t}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    headers: h
   });
+
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
