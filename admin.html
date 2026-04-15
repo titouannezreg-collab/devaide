@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevAide — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --accent: #5b6cff;
+    --accent2: #00e5a0;
+    --text: #f0f0f5;
+    --muted: #7a7a90;
+    --danger: #ff5e6c;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+  }
+  .logo {
+    font-size: 1.1rem; font-weight: 800;
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .logo-dot2 { background: var(--accent2); }
+  h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+  label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+  input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus { border-color: var(--accent); }
+  .btn {
+    width: 100%;
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: #4a5ce8; }
+  .alert {
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .alert.error { background: #ff5e6c10; border: 1px solid #ff5e6c30; color: var(--danger); display: block; }
+  .alert.success { background: #00e5a012; border: 1px solid #00e5a030; color: var(--accent2); display: block; }
+  .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+  .status-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.82rem; color: var(--muted);
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--border); display: inline-block; margin-right: 0.4rem;
+  }
+  .status-dot.active { background: var(--accent2); }
+  .token-preview {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+  .link-back {
+    display: block;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 1.2rem;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .link-back:hover { color: var(--text); }
+
+  /* Sections shown/hidden */
+  #loginSection { display: block; }
+  #adminSection { display: none; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <span class="logo-dot"></span>
+    <span class="logo-dot logo-dot2"></span>
+    DevAide <span style="color:var(--muted);font-weight:400;font-size:0.85rem;margin-left:0.3rem">/ admin</span>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginSection">
+    <h2>Accès administrateur</h2>
+    <p class="sub">Cette page est réservée au gestionnaire du site. Entrez le mot de passe admin.</p>
+    <div class="alert" id="loginAlert"></div>
+    <label>MOT DE PASSE</label>
+    <input type="password" id="pwdInput" placeholder="••••••••••••••••" autocomplete="current-password">
+    <button class="btn" onclick="checkPassword()">Accéder →</button>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminSection">
+    <h2>Panneau admin</h2>
+    <p class="sub">Gérez le token GitHub utilisé par le site pour accéder aux tickets.</p>
+
+    <div class="status-row" style="margin-bottom:1rem;">
+      <span><span class="status-dot" id="statusDot"></span><span id="statusText">Vérification…</span></span>
+      <span class="token-preview" id="tokenPreview"></span>
+    </div>
+
+    <div class="alert" id="adminAlert"></div>
+
+    <label>PERSONAL ACCESS TOKEN GITHUB</label>
+    <input type="password" id="tokenInput" placeholder="ghp_...">
+    <button class="btn" onclick="saveToken()">Sauvegarder le token</button>
+
+    <div class="divider"></div>
+
+    <div style="display:flex;gap:0.8rem;">
+      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:0.8rem;" onclick="clearToken()">Effacer le token</button>
+      <button class="btn" style="font-size:0.8rem;" onclick="window.location.href='index.html'">→ Voir le site</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="link-back">← Retour au site</a>
+</div>
+
+<script>
+const PASSWORD_HASH = 'dc47ef60d322bedc412cd05a4ff9b144440a101970a1ea858eabbf50e97e3d31';
+
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function checkPassword() {
+  const pwd = document.getElementById('pwdInput').value;
+  const alert = document.getElementById('loginAlert');
+  if (!pwd) { alert.textContent = 'Entrez le mot de passe.'; alert.className = 'alert error'; return; }
+
+  const hash = await sha256(pwd);
+  if (hash === PASSWORD_HASH) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('adminSection').style.display = 'block';
+    refreshStatus();
+  } else {
+    alert.textContent = 'Mot de passe incorrect.';
+    alert.className = 'alert error';
+    document.getElementById('pwdInput').value = '';
+  }
+}
+
+function refreshStatus() {
+  const token = localStorage.getItem('devaide_token') || '';
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  const preview = document.getElementById('tokenPreview');
+  if (token) {
+    dot.className = 'status-dot active';
+    text.textContent = 'Token actif';
+    preview.textContent = token.slice(0, 8) + '••••••••';
+  } else {
+    dot.className = 'status-dot';
+    text.textContent = 'Aucun token enregistré';
+    preview.textContent = '';
+  }
+}
+
+function saveToken() {
+  const token = document.getElementById('tokenInput').value.trim();
+  const alert = document.getElementById('adminAlert');
+  if (!token) { alert.textContent = 'Entrez un token.'; alert.className = 'alert error'; return; }
+  if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+    alert.textContent = 'Le token doit commencer par ghp_ ou github_pat_';
+    alert.className = 'alert error'; return;
+  }
+  localStorage.setItem('devaide_token', token);
+  document.getElementById('tokenInput').value = '';
+  alert.textContent = '✓ Token sauvegardé avec succès.';
+  alert.className = 'alert success';
+  refreshStatus();
+  setTimeout(() => { alert.className = 'alert'; }, 3000);
+}
+
+function clearToken() {
+  localStorage.removeItem('devaide_token');
+  const alert = document.getElementById('adminAlert');
+  alert.textContent = 'Token supprimé.';
+  alert.className = 'alert success';
+  refreshStatus();
+  setTimeout(() => { alert.className = 'alert'; }, 2000);
+}
+
+// Enter key on password field
+document.getElementById('pwdInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
+</script>
+</body>
+</html>

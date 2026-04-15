@@ -391,9 +391,11 @@
 </div>
 
 <script>
-const CONFIG_KEY = 'devaide_config';
-function getConfig() {
-  try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'); } catch { return {}; }
+const OWNER = 'titouannezreg-collab';
+const REPO  = 'devaide-tickets';
+
+function getToken() {
+  return localStorage.getItem('devaide_token') || '';
 }
 
 const params = new URLSearchParams(location.search);
@@ -405,13 +407,12 @@ let knownCommentIds = new Set();
 let allIssues = [];
 
 async function api(path, method = 'GET', body = null) {
-  const { owner, repo, token } = getConfig();
   const opts = {
     method,
-    headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json' }
+    headers: { Authorization: `token ${getToken()}`, Accept: 'application/vnd.github+json' }
   };
   if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, opts);
+  const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}${path}`, opts);
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -446,8 +447,7 @@ function parseBody(body) {
 }
 
 function isExpert(login) {
-  const { owner } = getConfig();
-  return login === owner;
+  return login === OWNER;
 }
 
 function renderMessage(comment, type = 'comment') {
@@ -465,9 +465,6 @@ function renderMessage(comment, type = 'comment') {
 }
 
 async function loadIssue() {
-  const { owner, repo } = getConfig();
-  if (!owner || !repo) { location.href = 'index.html'; return; }
-
   try {
     [issueData, allIssues] = await Promise.all([
       api(`/issues/${issueNum}`),

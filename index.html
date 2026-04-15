@@ -287,34 +287,7 @@
   .alert.error { background: #ff5e6c10; border: 1px solid #ff5e6c30; color: var(--danger); }
   .alert.show { display: block; }
 
-  /* CONFIG MODAL */
-  .config-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100; padding: 1rem;
-    backdrop-filter: blur(4px);
-  }
-  .config-modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2rem;
-    width: 100%; max-width: 480px;
-  }
-  .config-modal h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
-  .config-modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
-  .config-steps {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    font-size: 0.8rem;
-    font-family: 'DM Mono', monospace;
-    color: var(--muted);
-    margin-bottom: 1.2rem;
-    line-height: 2;
-  }
-  .config-steps a { color: var(--accent); }
+
 
   @media (max-width: 700px) {
     .main { grid-template-columns: 1fr; }
@@ -327,32 +300,6 @@
 </head>
 <body>
 
-<!-- CONFIG MODAL -->
-<div class="config-overlay" id="configOverlay">
-  <div class="config-modal">
-    <h2>⚙️ Configuration initiale</h2>
-    <p>Ce site utilise GitHub Issues comme base de données — zéro serveur, tout sur GitHub. Pour le faire fonctionner, tu as besoin de deux choses :</p>
-    <div class="config-steps">
-      1. Crée un repo GitHub public (ex: <em>devaide-tickets</em>)<br>
-      2. Génère un Personal Access Token → <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
-         (permissions: <em>repo → public_repo</em> suffit)<br>
-      3. Remplis les champs ci-dessous
-    </div>
-    <label>Propriétaire GitHub (ton username)</label>
-    <input type="text" id="cfgOwner" placeholder="ex: monpseudo">
-    <label>Nom du repo</label>
-    <input type="text" id="cfgRepo" placeholder="ex: devaide-tickets">
-    <label>Personal Access Token</label>
-    <input type="password" id="cfgToken" placeholder="ghp_...">
-    <div class="alert" id="cfgAlert"></div>
-    <button class="btn btn-primary" style="width:100%" onclick="saveConfig()">Sauvegarder et continuer</button>
-    <p style="font-size:0.72rem;color:var(--muted);margin-top:0.8rem;text-align:center">
-      Le token est stocké uniquement dans ton navigateur (localStorage).<br>
-      Ne partage jamais ce fichier avec le token hardcodé.
-    </p>
-  </div>
-</div>
-
 <nav>
   <div class="logo">
     <span class="logo-dot"></span>
@@ -360,8 +307,7 @@
     DevAide
   </div>
   <div class="nav-links">
-    <span id="repoLink" style="font-size:0.8rem;color:var(--muted);font-family:'DM Mono',monospace"></span>
-    <button class="btn" onclick="document.getElementById('configOverlay').style.display='flex'">Paramètres</button>
+    <span style="font-size:0.8rem;color:var(--muted);font-family:'DM Mono',monospace">titouannezreg-collab/collab</span>
   </div>
 </nav>
 
@@ -439,50 +385,26 @@
 </div>
 
 <script>
-const CONFIG_KEY = 'devaide_config';
+const OWNER = 'titouannezreg-collab';
+const REPO  = 'devaide-tickets';
 
-function getConfig() {
-  try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'); } catch { return {}; }
-}
-
-function saveConfig() {
-  const owner = document.getElementById('cfgOwner').value.trim();
-  const repo = document.getElementById('cfgRepo').value.trim();
-  const token = document.getElementById('cfgToken').value.trim();
-  const alert = document.getElementById('cfgAlert');
-  if (!owner || !repo || !token) {
-    alert.textContent = 'Tous les champs sont requis.';
-    alert.className = 'alert error show'; return;
-  }
-  localStorage.setItem(CONFIG_KEY, JSON.stringify({ owner, repo, token }));
-  document.getElementById('configOverlay').style.display = 'none';
-  updateRepoLink();
-  loadTickets();
-}
-
-function updateRepoLink() {
-  const { owner, repo } = getConfig();
-  if (owner && repo) {
-    const el = document.getElementById('repoLink');
-    el.textContent = owner + '/' + repo;
-  }
+function getToken() {
+  return localStorage.getItem('devaide_token') || '';
 }
 
 async function apiGet(path) {
-  const { owner, repo, token } = getConfig();
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, {
-    headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json' }
+  const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}${path}`, {
+    headers: { Authorization: `token ${getToken()}`, Accept: 'application/vnd.github+json' }
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 async function apiPost(path, body) {
-  const { owner, repo, token } = getConfig();
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, {
+  const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}${path}`, {
     method: 'POST',
     headers: {
-      Authorization: `token ${token}`,
+      Authorization: `token ${getToken()}`,
       Accept: 'application/vnd.github+json',
       'Content-Type': 'application/json'
     },
@@ -515,8 +437,6 @@ function parseTicketBody(body) {
 }
 
 async function loadTickets() {
-  const { owner, repo } = getConfig();
-  if (!owner || !repo) return;
 
   const list = document.getElementById('ticketList');
   list.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement…</div>';
@@ -612,15 +532,8 @@ ${desc}
 }
 
 // Init
-updateRepoLink();
-const cfg = getConfig();
-if (!cfg.owner || !cfg.repo || !cfg.token) {
-  document.getElementById('configOverlay').style.display = 'flex';
-} else {
-  document.getElementById('configOverlay').style.display = 'none';
-  loadTickets();
-  setInterval(loadTickets, 30000);
-}
+loadTickets();
+setInterval(loadTickets, 30000);
 </script>
 </body>
 </html>
