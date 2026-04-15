@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevAide — Aide entre développeurs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --accent: #5b6cff;
+    --accent2: #00e5a0;
+    --text: #f0f0f5;
+    --muted: #7a7a90;
+    --tag-bg: #1e1e2e;
+    --danger: #ff5e6c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(14,14,16,0.92);
+    backdrop-filter: blur(12px);
+  }
+  .logo {
+    font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .logo-dot2 { background: var(--accent2); }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #4a5ce8; border-color: #4a5ce8; color: #fff; }
+
+  /* HERO */
+  .hero {
+    padding: 5rem 2.5rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.3rem 0.9rem;
+    font-size: 0.75rem; color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+  .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+  }
+  h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+  }
+
+  /* STATS */
+  .stats {
+    display: flex; gap: 2rem;
+    padding: 0 2.5rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; flex-direction: column; gap: 0.2rem; }
+  .stat-num { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+  .stat-label { font-size: 0.78rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2.5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* FORM PANEL */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 80px;
+  }
+  .panel-title {
+    font-size: 1rem; font-weight: 700;
+    margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .panel-title::before {
+    content: '';
+    display: block; width: 4px; height: 16px;
+    background: var(--accent); border-radius: 2px;
+  }
+  label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+  input, textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 100px; }
+  select option { background: var(--surface2); }
+  .form-footer {
+    font-size: 0.74rem;
+    color: var(--muted);
+    margin-top: 0.8rem;
+    display: flex; align-items: center; gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* TICKET LIST */
+  .list-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.2rem;
+  }
+  .list-title { font-size: 1rem; font-weight: 700; }
+  .queue-info {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.25rem 0.8rem;
+  }
+
+  /* TICKET CARD */
+  .ticket {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    margin-bottom: 0.8rem;
+    transition: border-color 0.15s, transform 0.1s;
+    cursor: pointer;
+    display: block;
+  }
+  .ticket:hover { border-color: #3a3a50; transform: translateY(-1px); }
+  .ticket.open { border-left: 3px solid var(--accent2); }
+  .ticket.answered { border-left: 3px solid var(--accent); }
+  .ticket-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 0.8rem; margin-bottom: 0.6rem;
+  }
+  .ticket-title { font-size: 0.95rem; font-weight: 600; line-height: 1.3; }
+  .ticket-num {
+    font-size: 0.72rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .ticket-excerpt {
+    font-size: 0.82rem; color: var(--muted); line-height: 1.5;
+    margin-bottom: 0.8rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .ticket-footer { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .tag {
+    font-size: 0.7rem; font-family: 'DM Mono', monospace;
+    padding: 0.2rem 0.6rem; border-radius: 6px;
+    background: var(--tag-bg); border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .tag.html { color: #e44d26; border-color: #e44d2633; background: #e44d2610; }
+  .tag.css { color: #264de4; border-color: #264de433; background: #264de410; }
+  .tag.js { color: #f7df1e; border-color: #f7df1e33; background: #f7df1e0d; }
+  .status-badge {
+    margin-left: auto; font-size: 0.68rem; font-family: 'DM Mono', monospace;
+    padding: 0.2rem 0.6rem; border-radius: 6px;
+  }
+  .status-open { background: #00e5a015; color: var(--accent2); border: 1px solid #00e5a030; }
+  .status-answered { background: #5b6cff15; color: var(--accent); border: 1px solid #5b6cff30; }
+  .status-waiting { background: #ff5e6c10; color: var(--danger); border: 1px solid #ff5e6c30; }
+
+  /* FIFO INDICATOR */
+  .fifo-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .fifo-icon { font-size: 1.2rem; }
+  .fifo-text { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+  .fifo-text strong { color: var(--text); }
+  .queue-viz {
+    display: flex; gap: 4px; align-items: center; margin-left: auto; flex-shrink: 0;
+  }
+  .q-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .q-dot.active { background: var(--accent2); }
+  .q-dot.waiting { background: var(--border); }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--muted); font-size: 0.9rem;
+  }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+
+  /* LOADING */
+  .loading {
+    display: flex; justify-content: center; padding: 2rem;
+    color: var(--muted); font-size: 0.85rem;
+    font-family: 'DM Mono', monospace;
+    gap: 0.5rem; align-items: center;
+  }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ERROR / SUCCESS */
+  .alert {
+    border-radius: 8px; padding: 0.8rem 1rem;
+    font-size: 0.82rem; margin-bottom: 1rem;
+    display: none;
+  }
+  .alert.success { background: #00e5a012; border: 1px solid #00e5a030; color: var(--accent2); }
+  .alert.error { background: #ff5e6c10; border: 1px solid #ff5e6c30; color: var(--danger); }
+  .alert.show { display: block; }
+
+  /* CONFIG MODAL */
+  .config-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 1rem;
+    backdrop-filter: blur(4px);
+  }
+  .config-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%; max-width: 480px;
+  }
+  .config-modal h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .config-modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+  .config-steps {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.8rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+    line-height: 2;
+  }
+  .config-steps a { color: var(--accent); }
+
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; }
+    .panel { position: static; }
+    nav { padding: 1rem 1.2rem; }
+    .hero, .stats { padding-left: 1.2rem; padding-right: 1.2rem; }
+    .main { padding-left: 1.2rem; padding-right: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFIG MODAL -->
+<div class="config-overlay" id="configOverlay">
+  <div class="config-modal">
+    <h2>⚙️ Configuration initiale</h2>
+    <p>Ce site utilise GitHub Issues comme base de données — zéro serveur, tout sur GitHub. Pour le faire fonctionner, tu as besoin de deux choses :</p>
+    <div class="config-steps">
+      1. Crée un repo GitHub public (ex: <em>devaide-tickets</em>)<br>
+      2. Génère un Personal Access Token → <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+         (permissions: <em>repo → public_repo</em> suffit)<br>
+      3. Remplis les champs ci-dessous
+    </div>
+    <label>Propriétaire GitHub (ton username)</label>
+    <input type="text" id="cfgOwner" placeholder="ex: monpseudo">
+    <label>Nom du repo</label>
+    <input type="text" id="cfgRepo" placeholder="ex: devaide-tickets">
+    <label>Personal Access Token</label>
+    <input type="password" id="cfgToken" placeholder="ghp_...">
+    <div class="alert" id="cfgAlert"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="saveConfig()">Sauvegarder et continuer</button>
+    <p style="font-size:0.72rem;color:var(--muted);margin-top:0.8rem;text-align:center">
+      Le token est stocké uniquement dans ton navigateur (localStorage).<br>
+      Ne partage jamais ce fichier avec le token hardcodé.
+    </p>
+  </div>
+</div>
+
+<nav>
+  <div class="logo">
+    <span class="logo-dot"></span>
+    <span class="logo-dot logo-dot2"></span>
+    DevAide
+  </div>
+  <div class="nav-links">
+    <span id="repoLink" style="font-size:0.8rem;color:var(--muted);font-family:'DM Mono',monospace"></span>
+    <button class="btn" onclick="document.getElementById('configOverlay').style.display='flex'">Paramètres</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge"><div class="pulse"></div> File d'attente en direct</div>
+  <h1>Ton code bloque ?<br><span>Un expert</span> répond.</h1>
+  <p>Dépose ton ticket, colle le lien de ton site, explique ton problème. Les experts répondent dans l'ordre d'arrivée — personne n'est oublié.</p>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <span class="stat-num" id="statOpen">—</span>
+    <span class="stat-label">tickets ouverts</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" id="statAnswered">—</span>
+    <span class="stat-label">résolus</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" id="statTotal">—</span>
+    <span class="stat-label">total</span>
+  </div>
+</div>
+
+<div class="main">
+  <!-- TICKET LIST -->
+  <div>
+    <div class="fifo-bar">
+      <span class="fifo-icon">⏱</span>
+      <div class="fifo-text">
+        <strong>Ordre de priorité : premier arrivé, premier servi.</strong><br>
+        Les tickets sont triés par date de création. Aucun ticket ne reste sans réponse.
+      </div>
+      <div class="queue-viz" id="queueViz"></div>
+    </div>
+
+    <div class="list-header">
+      <span class="list-title">Tickets en attente</span>
+      <span class="queue-info" id="queueCount">chargement…</span>
+    </div>
+
+    <div id="ticketList">
+      <div class="loading"><div class="spinner"></div> Chargement des tickets…</div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="panel">
+    <div class="panel-title">Nouveau ticket</div>
+    <div class="alert" id="formAlert"></div>
+
+    <label>Ton prénom ou pseudo</label>
+    <input type="text" id="fName" placeholder="ex: Sophie_dev">
+
+    <label>URL de ton site</label>
+    <input type="url" id="fUrl" placeholder="https://monsite.github.io">
+
+    <label>Technologie concernée</label>
+    <select id="fTech">
+      <option value="">Sélectionne…</option>
+      <option value="HTML">HTML</option>
+      <option value="CSS">CSS</option>
+      <option value="JavaScript">JavaScript</option>
+      <option value="autre">Autre</option>
+    </select>
+
+    <label>Décris ton problème</label>
+    <textarea id="fDesc" placeholder="Explique ce qui ne fonctionne pas, ce que tu as déjà essayé, ce que tu attends comme résultat…"></textarea>
+
+    <button class="btn btn-primary" style="width:100%" onclick="submitTicket()">Déposer le ticket →</button>
+    <p class="form-footer">
+      ✦ Les experts répondent directement via GitHub Issues
+    </p>
+  </div>
+</div>
+
+<script>
+const CONFIG_KEY = 'devaide_config';
+
+function getConfig() {
+  try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'); } catch { return {}; }
+}
+
+function saveConfig() {
+  const owner = document.getElementById('cfgOwner').value.trim();
+  const repo = document.getElementById('cfgRepo').value.trim();
+  const token = document.getElementById('cfgToken').value.trim();
+  const alert = document.getElementById('cfgAlert');
+  if (!owner || !repo || !token) {
+    alert.textContent = 'Tous les champs sont requis.';
+    alert.className = 'alert error show'; return;
+  }
+  localStorage.setItem(CONFIG_KEY, JSON.stringify({ owner, repo, token }));
+  document.getElementById('configOverlay').style.display = 'none';
+  updateRepoLink();
+  loadTickets();
+}
+
+function updateRepoLink() {
+  const { owner, repo } = getConfig();
+  if (owner && repo) {
+    const el = document.getElementById('repoLink');
+    el.textContent = owner + '/' + repo;
+  }
+}
+
+async function apiGet(path) {
+  const { owner, repo, token } = getConfig();
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, {
+    headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json' }
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function apiPost(path, body) {
+  const { owner, repo, token } = getConfig();
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+function techTag(label) {
+  const map = { html:'html', css:'css', javascript:'js'};
+  const cls = map[label.toLowerCase()] || '';
+  return `<span class="tag ${cls}">${label}</span>`;
+}
+
+function timeAgo(dateStr) {
+  const diff = (Date.now() - new Date(dateStr)) / 1000;
+  if (diff < 60) return 'à l\'instant';
+  if (diff < 3600) return `il y a ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `il y a ${Math.floor(diff/3600)} h`;
+  return `il y a ${Math.floor(diff/86400)} j`;
+}
+
+function parseTicketBody(body) {
+  if (!body) return { url: '', desc: '', tech: '' };
+  const url = (body.match(/\*\*Site :\*\* (.+)/) || [])[1] || '';
+  const tech = (body.match(/\*\*Tech :\*\* (.+)/) || [])[1] || '';
+  const desc = (body.match(/\*\*Problème :\*\*\s*([\s\S]+?)(?=\n---|\n\*\*|$)/) || [])[1]?.trim() || body;
+  return { url, desc, tech };
+}
+
+async function loadTickets() {
+  const { owner, repo } = getConfig();
+  if (!owner || !repo) return;
+
+  const list = document.getElementById('ticketList');
+  list.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement…</div>';
+
+  try {
+    const issues = await apiGet('/issues?state=open&per_page=50&sort=created&direction=asc');
+    const allClosed = await apiGet('/issues?state=closed&per_page=50');
+
+    document.getElementById('statOpen').textContent = issues.length;
+    document.getElementById('statAnswered').textContent = allClosed.length;
+    document.getElementById('statTotal').textContent = issues.length + allClosed.length;
+    document.getElementById('queueCount').textContent = issues.length + ' en file';
+
+    const viz = document.getElementById('queueViz');
+    viz.innerHTML = Array.from({length: Math.min(issues.length, 8)}, (_, i) =>
+      `<div class="q-dot ${i === 0 ? 'active' : 'waiting'}"></div>`).join('');
+
+    if (issues.length === 0) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">✓</div>Aucun ticket en attente — file vide !</div>';
+      return;
+    }
+
+    list.innerHTML = issues.map((issue, i) => {
+      const { url, desc, tech } = parseTicketBody(issue.body);
+      const hasAnswers = issue.comments > 0;
+      const statusClass = hasAnswers ? 'answered' : (i === 0 ? 'open' : '');
+      const statusLabel = hasAnswers
+        ? '<span class="status-badge status-answered">réponse reçue</span>'
+        : (i === 0 ? '<span class="status-badge status-open">prioritaire</span>'
+                   : `<span class="status-badge status-waiting">#${i+1} en file</span>`);
+      return `
+        <a class="ticket ${statusClass}" href="ticket.html?issue=${issue.number}">
+          <div class="ticket-top">
+            <span class="ticket-title">${escHtml(issue.title)}</span>
+            <span class="ticket-num">#${issue.number} · ${timeAgo(issue.created_at)}</span>
+          </div>
+          <div class="ticket-excerpt">${escHtml(desc || issue.body || '')}</div>
+          <div class="ticket-footer">
+            ${tech ? techTag(tech) : ''}
+            ${url ? `<span class="tag">🔗 site joint</span>` : ''}
+            ${issue.comments > 0 ? `<span class="tag">💬 ${issue.comments}</span>` : ''}
+            ${statusLabel}
+          </div>
+        </a>`;
+    }).join('');
+
+  } catch (err) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">⚠</div>Erreur : ${err.message}</div>`;
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function submitTicket() {
+  const name = document.getElementById('fName').value.trim();
+  const url = document.getElementById('fUrl').value.trim();
+  const tech = document.getElementById('fTech').value;
+  const desc = document.getElementById('fDesc').value.trim();
+  const alert = document.getElementById('formAlert');
+
+  if (!name || !desc) {
+    alert.textContent = 'Pseudo et description sont requis.'; alert.className='alert error show'; return;
+  }
+
+  const body = `**Auteur :** ${name}
+**Site :** ${url || 'non renseigné'}
+**Tech :** ${tech || 'non renseigné'}
+
+**Problème :**
+${desc}
+
+---
+*Ticket créé via DevAide*`;
+
+  try {
+    await apiPost('/issues', {
+      title: `[${tech || 'aide'}] ${name} — ${desc.slice(0, 60)}${desc.length > 60 ? '…' : ''}`,
+      body,
+      labels: tech ? [tech.toLowerCase()] : []
+    });
+    alert.textContent = '✓ Ticket créé ! Tu es en file d\'attente.';
+    alert.className = 'alert success show';
+    document.getElementById('fName').value = '';
+    document.getElementById('fUrl').value = '';
+    document.getElementById('fTech').value = '';
+    document.getElementById('fDesc').value = '';
+    setTimeout(() => { alert.className = 'alert'; loadTickets(); }, 2500);
+  } catch (err) {
+    alert.textContent = 'Erreur : ' + err.message; alert.className = 'alert error show';
+  }
+}
+
+// Init
+updateRepoLink();
+const cfg = getConfig();
+if (!cfg.owner || !cfg.repo || !cfg.token) {
+  document.getElementById('configOverlay').style.display = 'flex';
+} else {
+  document.getElementById('configOverlay').style.display = 'none';
+  loadTickets();
+  setInterval(loadTickets, 30000);
+}
+</script>
+</body>
+</html>
