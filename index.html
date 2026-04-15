@@ -180,7 +180,11 @@
 const OWNER = 'titouannezreg-collab';
 const REPO  = 'devaide-tickets';
 
-function getToken() { return localStorage.getItem('devaide_token') || ''; }
+const TOKEN = "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";
+
+function getToken() {
+    return TOKEN;
+}
 
 async function apiGet(path) {
   const h = { Accept: 'application/vnd.github+json' };
