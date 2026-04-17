@@ -180,22 +180,8 @@
 const OWNER = 'titouannezreg-collab';
 const REPO  = 'devaide-tickets';
 
-const TOKEN = "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";
-
-function getToken() {
-    return TOKEN;
-}
-
 async function apiGet(path) {
-  const h = { Accept: 'application/vnd.github+json' };
-  const t = getToken();
-
-  if (t) h.Authorization = `Bearer ${t}`;
-
-  const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}${path}`, {
-    headers: h
-  });
-
+  const r = await fetch(`/api/github?path=${encodeURIComponent(path)}`);
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
@@ -221,9 +207,18 @@ function techTag(l) {
   return `<span class="tag ${m[l.toLowerCase()]||''}">${l}</span>`;
 }
 
+async function apiPost(path, body) {
+  const r = await fetch(`/api/github?path=${encodeURIComponent(path)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
 async function loadTickets() {
-  const t = getToken();
-  document.getElementById('noTokenBanner').style.display = t ? 'none' : 'block';
+  document.getElementById('noTokenBanner').style.display = 'none';
   const list = document.getElementById('ticketList');
   try {
     const [open, closed] = await Promise.all([

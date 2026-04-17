@@ -151,12 +151,6 @@
 const OWNER = 'titouannezreg-collab';
 const REPO  = 'devaide-tickets';
 
-const TOKEN = "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";
-  
-function getToken() {
-  return TOKEN;
-}
-
 const params = new URLSearchParams(location.search);
 const issueNum = parseInt(params.get('issue'));
 if (!issueNum) location.href = 'index.html';
@@ -164,20 +158,12 @@ if (!issueNum) location.href = 'index.html';
 let issueData = null;
 
 async function api(path, method='GET', body=null) {
-  const h = { Accept: 'application/vnd.github+json' };
-  const t = getToken();
-
-  if (t) h.Authorization = `Bearer ${t}`;
-
-  const opts = { method, headers: h };
-
-  if (body) {
-    h['Content-Type'] = 'application/json';
-    opts.body = JSON.stringify(body);
-  }
-
-  const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}${path}`, opts);
-
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(`/api/github?path=${encodeURIComponent(path)}`, opts);
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
